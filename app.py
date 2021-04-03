@@ -1,6 +1,11 @@
-from flask import Flask
+from flask import Flask, request, render_template
 app = Flask(__name__)
 
 @app.route('/')
-def hello_world():
-    return 'Hello, World! This is a simple flask app created by Christian'
+def home_page():
+    return render_template("home.html")
+
+
+@app.route('/looking_for_game')
+def looking_for_game():
+    return render_template("looking_for_game.html")
