@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block header %}About Us{% endblock %}
+{% block title  %}About Us{% endblock %}
+
+<!-- put all html for this page within this block -->
+{% block content %}
+<div class="about-section">
+    <h1>About Us Page</h1>
+  </div>
+  
+  <h2 style="text-align:center">Our Team</h2>
+  <div class="row">
+    <div class="column">
+      <div class="card">
+        <img src="/static/christian.PNG" alt="Christian" width=400, height=400>
+        <div class="container">
+          <h2>Christian Doucette</h2>
+          <p class="title">Twin</p>
+          <p>cdoucette@uchicago.com</p>
+        </div>
+      </div>
+    </div>
+  
+    <div class="column">
+      <div class="card">
+        <img src="/static/kevin.PNG" width=400, height=400>
+        <div class="container">
+          <h2>Kevin O'Sullivan</h2>
+          <p class="title">broken in boots</p>
+          <p>kevin's email here</p>
+        </div>
+      </div>
+    </div>
+  
+    <div class="column">
+      <div class="card">
+        <img src="/static/mason.PNG" width=400, height=400>
+        <div class="container">
+          <h2>Mason Rand</h2>
+          <p class="title">on shrooms</p>
+          <p>masons's email here</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="column">
+        <div class="card">
+          <img src="/static/jake.PNG" width=400, height=400>
+          <div class="container">
+            <h2>Jake Apfel</h2>
+            <p class="title">Socket Vandal</p>
+            <p>jake's email here</p>
+          </div>
+        </div>
+      </div>
+  </div>
+{% endblock %}

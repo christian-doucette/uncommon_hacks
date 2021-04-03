@@ -14,3 +14,7 @@ def looking_for_game():
 @app.route('/rules')
 def rules():
     return render_template("rules.html")
+
+@app.route('/about_us')
+def about_us():
+    return render_template("about_us.html")
