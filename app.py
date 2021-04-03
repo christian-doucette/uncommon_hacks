@@ -6,6 +6,9 @@ app.config['SECRET_KEY'] = 'supersecret'
 socketio = SocketIO(app)
 socketio.init_app(app, cors_allowed_origins="*")
 
+
+
+
 def messageReceived(methods=['GET', 'POST']):
     print('message was received!!!')
 
@@ -14,8 +17,6 @@ def handle_my_custom_event(json, methods=['GET', 'POST']):
     print('received my event: ' + str(json))
     socketio.emit('my response', json, callback=messageReceived)
 
-if __name__ == '__main__':
-    socketio.run(app, debug=True)
 
 @app.route('/')
 def home_page():
@@ -34,3 +35,10 @@ def rules():
 @app.route('/game', methods=['GET', 'POST'])
 def game():
     return render_template("game.html")
+
+
+
+
+if __name__ == '__app__':
+    print("I am running this!")
+    socketio.run(app, debug=True)
