@@ -9,3 +9,8 @@ def home_page():
 @app.route('/looking_for_game')
 def looking_for_game():
     return render_template("looking_for_game.html")
+
+
+@app.route('/rules')
+def rules():
+    return render_template("rules.html")
