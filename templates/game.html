@@ -5,14 +5,15 @@
 
 
 {% block content %}
+    <!-- space at the top to replace navbar -->
+    <div class="mb-5"></div>
+
     <!-- HTML to display before game starts -->
     <div class="before_start">
       <h1>Game Not Started</h1>
+      <p class="num_players">? players</p>
       <button onclick="console.log('attempting to send start game request'); io.connect('http://' + document.domain + ':' + location.port).emit('game start')">Start game</button>
     </div>
-    <!--
-    <button onclick="console.log('attempting to send end game request'); io.connect('http://' + document.domain + ':' + location.port).emit('game end')">End game</button>
-  -->
 
     <!-- HTML to display while game in progress -->
     <div class="game" style="display:none">
@@ -66,6 +67,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
     <script type="text/javascript">
+    // Hides navbar, doing this because we want to leave the navbar in base.html but don't want it on this page
+    $("nav.navbar").hide();
+
     // Timer code
     var timeLeft = 0;
     //var elem = document.getElementById('timer');
@@ -102,6 +106,12 @@
         } )
     } )
 
+
+    // Updates number of players in lobby when someone enters or leaves
+    socket.on('update num players', function(new_num) {
+        console.log('got update number players message')
+        $("p.num_players").text(`Number of players: ${new_num}`);
+    })
 
     socket.on('my response', function(msg) {
         console.log("Response")
@@ -149,6 +159,8 @@
         timeLeft = 5;
         $("div.score").show();
     })
+
+
 
     socket.on('back to start', function() {
         console.log("Back to start!");

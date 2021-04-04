@@ -33,6 +33,9 @@ def on_connect(methods=['GET', 'POST']):
     # increments num players
     global all_connections
     all_connections.add(request.sid)
+
+    socketio.emit('update num players', len(all_connections))
+
     print(f"connections: {all_connections}")
 
 
@@ -45,6 +48,8 @@ def on_disconnect():
 
     global all_connections
     all_connections.discard(request.sid)
+    socketio.emit('update num players', len(all_connections))
+
     print(f"all_connections: {all_connections}")
 
 
