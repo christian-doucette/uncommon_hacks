@@ -30,12 +30,25 @@
 
     <!-- HTML to display while voting in progress -->
     <div class="voting" style="display:none">
-      <h1>Voting In Progress</h1>
+      <h1>Vote for who you think the bot is</h1>
+
+      <form action="" method="POST">
+          <select class="bot_guess">
+          </select>
+      </form>
     </div>
+
+    <!-- HTML to display while votes are being tallied -->
+    <div class="tallying" style="display:none">
+      <h1>Tallying votes...</h1>
+    </div>
+
 
     <!-- HTML to display after game over voting in progress -->
     <div class="score" style="display:none">
       <h1>Scoreboard: will put it here</h1>
+      <ol class="scoreboard"></ol>
+
     </div>
 
 
@@ -52,13 +65,11 @@
 
     socket.on('connect', function() {
         console.log("Connected");
-        socket.emit('connected');
+        socket.emit('new_connect');
         var form = $('form').on('submit', function(e) {
             e.preventDefault()
-            let user_name = $('input.username').val()
             let user_input = $('input.message').val()
             socket.emit('my event', {
-                user_name : user_name,
                 message : user_input
             } )
           $('input.message').val('').focus()
@@ -75,29 +86,46 @@
         }
     })
 
-    socket.on('game started', function(random_player_names) {
+    socket.on('game started', function() {
 
         console.log("Game started!");
-        console.log(random_player_names);
         $("div.before_start").hide();
         $("div.game").show();
     })
 
-    socket.on('voting started', function() {
+    socket.on('voting started', function(num_options) {
+        for (var i = 0; i < num_options; i++) {
+          $("select.bot_guess").append(`<option value="Player ${i}">Player ${i}</option>`)
+        };
+
         console.log("Voting started!");
         $("div.game").hide();
         $("div.voting").show()
     })
 
-    socket.on('voting ended', function() {
-        console.log("Voting ended!");
-        $("div.voting").hide();
-        $("div.score").show();
+    socket.on('tallying votes', function() {
+        console.log("Tallying votes!");
+        let bot_guess = $('select.bot_guess').val()
+        socket.emit("record vote", bot_guess)
 
+        $("div.voting").hide();
+        $("div.tallying").show()
+    })
+
+    socket.on('voting ended', function(scores) {
+        Object.keys(scores).forEach(function(key) {
+          $("ol.scoreboard").append(`<li>Player: ${key}, score: ${scores[key]}</li>`)
+        })
+
+        $("div.tallying").hide();
+        $("div.score").show();
     })
 
     socket.on('back to start', function() {
         console.log("Back to start!");
+
+        // Removes all messages from the previous game
+        $('div.message_holder').empty();
         $("div.score").hide();
         $("div.before_start").show();
     })
