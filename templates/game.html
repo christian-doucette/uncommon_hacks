@@ -124,8 +124,11 @@
     socket.on('back to start', function() {
         console.log("Back to start!");
 
-        // Removes all messages from the previous game
+        // Removes all messages, score, and vote options from the previous game
         $('div.message_holder').empty();
+        $("ol.scoreboard").empty();
+        $("select.bot_guess").empty();
+
         $("div.score").hide();
         $("div.before_start").show();
     })

@@ -79,9 +79,17 @@ def on_game_start(methods=['GET', 'POST']):
     socketio.emit('tallying votes')
     time.sleep(5)
     print(votes)
+
     # calculate scores here
-    #name_decoder = {val: key for key: val in name_encoder.items()}
+    name_decoder = {val: key for key, val in name_encoder.items()}
+
     scores = {conn: 0 for conn in all_connections}
+    for conn in all_connections:
+        if votes[conn] == name_encoder['bot']:
+            scores[conn] += 5
+        else:
+            scores[name_decoder[votes[conn]]] += 1
+
     socketio.emit('voting ended', scores)
     time.sleep(5)
     socketio.emit('back to start')
