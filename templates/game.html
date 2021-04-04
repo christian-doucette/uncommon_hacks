@@ -5,14 +5,44 @@
 
 
 {% block content %}
-    <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
-    <div class="message_holder"></div>
+    <!-- HTML to display before game starts -->
+    <div class="before_start">
+      <h1>Game Not Started</h1>
+      <button onclick="console.log('attempting to send start game request'); io.connect('http://' + document.domain + ':' + location.port).emit('game start')">Start game</button>
+    </div>
+    <!--
+    <button onclick="console.log('attempting to send end game request'); io.connect('http://' + document.domain + ':' + location.port).emit('game end')">End game</button>
+  -->
 
-    <form action="" method="POST">
-        <input type="text" class="username" placeholder="User Name"/>
-        <input type="text" class="message" placeholder="Messages"/>
-        <input type="submit"/>
-    </form>
+    <!-- HTML to display while game in progress -->
+    <div class="game" style="display:none">
+      <h1>Game In Progress</h1>
+      <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+      <div class="message_holder"></div>
+
+      <form action="" method="POST">
+          <input type="text" class="username" value="Player 1" disabled="disabled"/>
+          <input type="text" class="message" placeholder="Messages"/>
+          <input type="submit"/>
+      </form>
+
+    </div>
+
+    <!-- HTML to display while voting in progress -->
+    <div class="voting" style="display:none">
+      <h1>Voting In Progress</h1>
+    </div>
+
+    <!-- HTML to display after game over voting in progress -->
+    <div class="score" style="display:none">
+      <h1>Scoreboard: will put it here</h1>
+    </div>
+
+
+    <!-- Room join button
+    <button onclick="console.log('attempting to send join room request'); io.connect('http://' + document.domain + ':' + location.port).emit('join', {'username': 'Player1', 'room': 1})">Click me</button>
+-->
+
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -36,6 +66,8 @@
           $('input.message').val('').focus()
         } )
     } )
+
+
     socket.on('my response', function(msg) {
         console.log("Response")
         console.log(msg)
@@ -44,6 +76,32 @@
             $('div.message_holder').append('<div><b style="color: #000">'+msg.user_name+'</b> '+msg.message+'</div>')
         }
     })
+
+    socket.on('game started', function() {
+        console.log("Game started!");
+        $("div.before_start").hide();
+        $("div.game").show();
+    })
+
+    socket.on('voting started', function() {
+        console.log("Voting started!");
+        $("div.game").hide();
+        $("div.voting").show()
+    })
+
+    socket.on('voting ended', function() {
+        console.log("Voting ended!");
+        $("div.voting").hide();
+        $("div.score").show();
+
+    })
+
+    socket.on('back to start', function() {
+        console.log("Back to start!");
+        $("div.score").hide();
+        $("div.before_start").show();
+    })
+
     </script>
 
 {% endblock %}
