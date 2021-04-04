@@ -16,6 +16,7 @@
 
     <!-- HTML to display while game in progress -->
     <div class="game" style="display:none">
+      <div class="timer"></div>
       <h1>Game In Progress</h1>
       <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
       <div class="message_holder"></div>
@@ -30,6 +31,7 @@
 
     <!-- HTML to display while voting in progress -->
     <div class="voting" style="display:none">
+      <div class="timer"></div>
       <h1>Vote for who you think the bot is</h1>
 
       <form action="" method="POST">
@@ -40,12 +42,15 @@
 
     <!-- HTML to display while votes are being tallied -->
     <div class="tallying" style="display:none">
+      <div class="timer""></div>
       <h1>Tallying votes...</h1>
     </div>
 
 
     <!-- HTML to display after game over voting in progress -->
     <div class="score" style="display:none">
+      <div class="timer"></div>
+
       <h1>Scoreboard: will put it here</h1>
       <ol class="scoreboard"></ol>
 
@@ -61,6 +66,27 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
     <script type="text/javascript">
+    // Timer code
+    var timeLeft = 0;
+    //var elem = document.getElementById('timer');
+
+    var timerId = setInterval(countdown, 1000);
+
+    function countdown() {
+      if (timeLeft > 0) {
+        //elem.innerHTML = timeLeft + ' seconds remaining for this stage';
+        $("div.timer").text(timeLeft + ' seconds remaining for this stage');
+        //$("div.timer").text("TEST IF THIS WORKS");
+
+        timeLeft--;
+      }
+    }
+    // Timer code end
+
+
+
+
+    // Socket code
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 
     socket.on('connect', function() {
@@ -87,10 +113,10 @@
     })
 
     socket.on('game started', function() {
-
         console.log("Game started!");
         $("div.before_start").hide();
         $("div.game").show();
+        timeLeft = 10;
     })
 
     socket.on('voting started', function(num_options) {
@@ -101,6 +127,7 @@
         console.log("Voting started!");
         $("div.game").hide();
         $("div.voting").show()
+        timeLeft = 10;
     })
 
     socket.on('tallying votes', function() {
@@ -110,6 +137,8 @@
 
         $("div.voting").hide();
         $("div.tallying").show()
+        timeLeft = 5;
+
     })
 
     socket.on('voting ended', function(scores) {
@@ -119,6 +148,7 @@
 
         $("div.tallying").hide();
         $("div.score").show();
+        timeLeft = 5;
     })
 
     socket.on('back to start', function() {
