@@ -12,7 +12,7 @@
     <div class="before_start">
       <h1>Game Not Started</h1>
       <p class="num_players">? players</p>
-      <button onclick="console.log('attempting to send start game request'); io.connect('https://' + document.domain + ':' + location.port).emit('game start')">Start game</button>
+      <button onclick="console.log('attempting to send start game request'); io.connect('http://' + document.domain + ':' + location.port).emit('game start')">Start game</button>
     </div>
 
     <!-- HTML to display while game in progress -->
@@ -23,7 +23,7 @@
       <div class="message_holder"></div>
 
       <form action="" method="POST">
-          <input type="text" class="username" value="Player 1" disabled="disabled"/>
+          <input type="text" class="username" value="You" disabled="disabled"/>
           <input type="text" class="message" placeholder="Messages"/>
           <input type="submit"/>
       </form>
@@ -33,8 +33,10 @@
     <!-- HTML to display while voting in progress -->
     <div class="voting" style="display:none">
       <div class="timer"></div>
-      <h1>Vote for who you think the bot is</h1>
+      <h1>Messages from the game</h1>
+      <div class="message_holder"></div>
 
+      <h1>Who is the bot</h1>
       <form action="" method="POST">
           <select class="bot_guess">
           </select>
@@ -91,7 +93,7 @@
 
 
     // Socket code
-    var socket = io.connect('https://' + document.domain + ':' + location.port);
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
 
     socket.on('connect', function() {
         console.log("Connected");
@@ -102,6 +104,7 @@
             socket.emit('my event', {
                 message : user_input
             } )
+            socket.emit('start bot')
           $('input.message').val('').focus()
         } )
     } )
@@ -125,7 +128,7 @@
     socket.on('game started', function() {
         console.log("Game started!");
         $("div.before_start").hide();
-        timeLeft = 10;
+        timeLeft = 60;
         $("div.game").show();
     })
 

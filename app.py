@@ -3,6 +3,7 @@ from flask_socketio import SocketIO #, join_room, leave_room, send
 
 import time
 import random
+import requests
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecret'
@@ -37,6 +38,29 @@ def on_connect(methods=['GET', 'POST']):
     socketio.emit('update num players', len(all_connections))
 
     print(f"connections: {all_connections}")
+
+
+
+@socketio.on('start bot')
+def start_bot():
+    print('Bot started!')
+    choice = random.choice([True, False])
+
+    # 1/2 chance of messaging
+    if choice:
+        print('Bot actually ran!')
+        r = requests.post(
+        "https://api.deepai.org/api/text-generator",
+        data={
+            'text': 'how are you? ',
+        },
+        headers={'api-key': '8fdab04e-b922-4165-9a0d-25ae9b58017b'}
+        )
+        output_text = r.json().get('output', 'Im not a bot!')
+        outlist = output_text.split()[3:13]
+        outlist_text = ' '.join(outlist)
+
+        socketio.emit('my response', {'message' : outlist_text, 'user_name': name_encoder['bot']})
 
 
 
@@ -78,7 +102,7 @@ def on_game_start(methods=['GET', 'POST']):
 
     # creates model here
     socketio.emit('game started')
-    time.sleep(10)
+    time.sleep(60)
     socketio.emit('voting started', len(all_connections) + 1)
     time.sleep(10)
     socketio.emit('tallying votes')
@@ -95,7 +119,10 @@ def on_game_start(methods=['GET', 'POST']):
         else:
             scores[name_decoder[votes[conn]]] += 1
 
-    socketio.emit('voting ended', scores)
+    # gets names
+    scores_with_names = {name_encoder[conn]: score for conn, score in scores.items()}
+
+    socketio.emit('voting ended', scores_with_names)
     time.sleep(5)
     socketio.emit('back to start')
 
@@ -122,7 +149,9 @@ def rules():
 def game():
     return render_template("game.html")
 
-
+@app.route('/About_Us')
+def About_Us():
+    return render_template("About_Us.html")
 
 
 if __name__ == '__app__':
