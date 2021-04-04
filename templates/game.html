@@ -5,37 +5,114 @@
 
 
 {% block content %}
-    <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
-    <div class="message_holder"></div>
+    <!-- space at the top to replace navbar -->
+    <div class="mb-5"></div>
 
-    <form action="" method="POST">
-        <input type="text" class="username" placeholder="User Name"/>
-        <input type="text" class="message" placeholder="Messages"/>
-        <input type="submit"/>
-    </form>
+    <!-- HTML to display before game starts -->
+    <div class="before_start">
+      <h1>Game Not Started</h1>
+      <p class="num_players">? players</p>
+      <button onclick="console.log('attempting to send start game request'); io.connect('https://' + document.domain + ':' + location.port).emit('game start')">Start game</button>
+    </div>
+
+    <!-- HTML to display while game in progress -->
+    <div class="game" style="display:none">
+      <div class="timer"></div>
+      <h1>Game In Progress</h1>
+      <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+      <div class="message_holder"></div>
+
+      <form action="" method="POST">
+          <input type="text" class="username" value="Player 1" disabled="disabled"/>
+          <input type="text" class="message" placeholder="Messages"/>
+          <input type="submit"/>
+      </form>
+
+    </div>
+
+    <!-- HTML to display while voting in progress -->
+    <div class="voting" style="display:none">
+      <div class="timer"></div>
+      <h1>Vote for who you think the bot is</h1>
+
+      <form action="" method="POST">
+          <select class="bot_guess">
+          </select>
+      </form>
+    </div>
+
+    <!-- HTML to display while votes are being tallied -->
+    <div class="tallying" style="display:none">
+      <div class="timer""></div>
+      <h1>Tallying votes...</h1>
+    </div>
+
+
+    <!-- HTML to display after game over voting in progress -->
+    <div class="score" style="display:none">
+      <div class="timer"></div>
+
+      <h1>Scoreboard: will put it here</h1>
+      <ol class="scoreboard"></ol>
+
+    </div>
+
+
+    <!-- Room join button
+    <button onclick="console.log('attempting to send join room request'); io.connect('http://' + document.domain + ':' + location.port).emit('join', {'username': 'Player1', 'room': 1})">Click me</button>
+-->
+
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
     <script type="text/javascript">
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    // Hides navbar, doing this because we want to leave the navbar in base.html but don't want it on this page
+    $("nav.navbar").hide();
+
+    // Timer code
+    var timeLeft = 0;
+    //var elem = document.getElementById('timer');
+
+    var timerId = setInterval(countdown, 1000);
+
+    function countdown() {
+      if (timeLeft >= 0) {
+        //elem.innerHTML = timeLeft + ' seconds remaining for this stage';
+        $("div.timer").text(timeLeft + ' seconds remaining for this stage');
+        //$("div.timer").text("TEST IF THIS WORKS");
+
+        timeLeft--;
+      }
+    }
+    // Timer code end
+
+
+
+
+    // Socket code
+    var socket = io.connect('https://' + document.domain + ':' + location.port);
 
     socket.on('connect', function() {
-        console.log("Connected")
-        socket.emit('my event', {
-            data: 'User Connected'
-        } )
+        console.log("Connected");
+        socket.emit('new_connect');
         var form = $('form').on('submit', function(e) {
             e.preventDefault()
-            let user_name = $('input.username').val()
             let user_input = $('input.message').val()
             socket.emit('my event', {
-                user_name : user_name,
                 message : user_input
             } )
           $('input.message').val('').focus()
         } )
     } )
+
+
+    // Updates number of players in lobby when someone enters or leaves
+    socket.on('update num players', function(new_num) {
+        console.log('got update number players message')
+        $("p.num_players").text(`Number of players: ${new_num}`);
+    })
+
     socket.on('my response', function(msg) {
         console.log("Response")
         console.log(msg)
@@ -44,6 +121,59 @@
             $('div.message_holder').append('<div><b style="color: #000">'+msg.user_name+'</b> '+msg.message+'</div>')
         }
     })
+
+    socket.on('game started', function() {
+        console.log("Game started!");
+        $("div.before_start").hide();
+        timeLeft = 10;
+        $("div.game").show();
+    })
+
+    socket.on('voting started', function(num_options) {
+        for (var i = 0; i < num_options; i++) {
+          $("select.bot_guess").append(`<option value="Player ${i}">Player ${i}</option>`)
+        };
+
+        console.log("Voting started!");
+        $("div.game").hide();
+        timeLeft = 10;
+        $("div.voting").show()
+    })
+
+    socket.on('tallying votes', function() {
+        console.log("Tallying votes!");
+        let bot_guess = $('select.bot_guess').val()
+        socket.emit("record vote", bot_guess)
+
+        $("div.voting").hide();
+        timeLeft = 5;
+        $("div.tallying").show()
+
+    })
+
+    socket.on('voting ended', function(scores) {
+        Object.keys(scores).forEach(function(key) {
+          $("ol.scoreboard").append(`<li>Player: ${key}, score: ${scores[key]}</li>`)
+        })
+        $("div.tallying").hide();
+        timeLeft = 5;
+        $("div.score").show();
+    })
+
+
+
+    socket.on('back to start', function() {
+        console.log("Back to start!");
+
+        // Removes all messages, score, and vote options from the previous game
+        $('div.message_holder').empty();
+        $("ol.scoreboard").empty();
+        $("select.bot_guess").empty();
+
+        $("div.score").hide();
+        $("div.before_start").show();
+    })
+
     </script>
 
 {% endblock %}
