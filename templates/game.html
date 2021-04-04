@@ -12,7 +12,7 @@
     <div class="before_start">
       <h1>Game Not Started</h1>
       <p class="num_players">? players</p>
-      <button onclick="console.log('attempting to send start game request'); io.connect('http://' + document.domain + ':' + location.port).emit('game start')">Start game</button>
+      <button onclick="console.log('attempting to send start game request'); io.connect('https://' + document.domain + ':' + location.port).emit('game start')">Start game</button>
     </div>
 
     <!-- HTML to display while game in progress -->
