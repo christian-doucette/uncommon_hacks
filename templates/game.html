@@ -51,10 +51,8 @@
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 
     socket.on('connect', function() {
-        console.log("Connected")
-        socket.emit('my event', {
-            data: 'User Connected'
-        } )
+        console.log("Connected");
+        socket.emit('connected');
         var form = $('form').on('submit', function(e) {
             e.preventDefault()
             let user_name = $('input.username').val()
@@ -77,8 +75,10 @@
         }
     })
 
-    socket.on('game started', function() {
+    socket.on('game started', function(random_player_names) {
+
         console.log("Game started!");
+        console.log(random_player_names);
         $("div.before_start").hide();
         $("div.game").show();
     })
